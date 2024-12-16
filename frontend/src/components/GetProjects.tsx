@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { apiService } from '../services/apiService';
-import { ImageProcessingProject } from '../types';
+import { MLProject } from '../types';
 
-const BackgroundRemoval: React.FC = () => {
+const MLProjectProcessor = () => {
   const [image, setImage] = useState<File | null>(null);
-  const [processedProject, setProcessedProject] = useState<ImageProcessingProject | null>(null);
+  const [processedProject, setProcessedProject] = useState<MLProject | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -15,7 +15,7 @@ const BackgroundRemoval: React.FC = () => {
     }
   };
 
-  const processImage = async () => {
+  const processMLImage = async () => {
     if (!image) {
       setError('Por favor, selecciona una imagen');
       return;
@@ -25,7 +25,7 @@ const BackgroundRemoval: React.FC = () => {
     setError(null);
 
     try {
-      const project = await apiService.removeBackground(image);
+      const project = await apiService.uploadImage(image);
       setProcessedProject(project);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error desconocido');
@@ -35,8 +35,9 @@ const BackgroundRemoval: React.FC = () => {
   };
 
   return (
+  <section className="bg-gray-50 py-20" id="Proyectos">
     <div className="p-6 bg-white rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-4">Eliminación de Fondo</h2>
+      <h2 className="text-2xl font-bold mb-4">Procesamiento de Machine Learning</h2>
       
       <input 
         type="file" 
@@ -51,11 +52,11 @@ const BackgroundRemoval: React.FC = () => {
       />
 
       <button 
-        onClick={processImage}
+        onClick={processMLImage}
         disabled={!image || loading}
         className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
       >
-        {loading ? 'Procesando...' : 'Remover Fondo'}
+        {loading ? 'Procesando...' : 'Procesar Imagen ML'}
       </button>
 
       {error && (
@@ -63,7 +64,6 @@ const BackgroundRemoval: React.FC = () => {
           {error}
         </div>
       )}
-
       {processedProject && (
         <div className="mt-4">
           <h3 className="text-xl font-semibold">Proyecto Procesado</h3>
@@ -72,7 +72,8 @@ const BackgroundRemoval: React.FC = () => {
         </div>
       )}
     </div>
-  );
+    </section>
+  ); 
 };
 
-export default BackgroundRemoval;
+export default MLProjectProcessor;

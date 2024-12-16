@@ -1,6 +1,6 @@
 import React from 'react';
 import ImageProcessor from './components/ImageProcessor';
-import PDFTransformer from './components/PDFConverter';
+import PDFTransformer from './components/Pdftransformer';
 
 const App: React.FC = () => {
   return (
