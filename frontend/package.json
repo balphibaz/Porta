@@ -15,7 +15,9 @@
     "axios": "^1.7.9",
     "opencv.js": "^1.2.1",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "@/components/ui": "^latest",
+    "lucide-react": "^0.263.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.15.0",

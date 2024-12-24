@@ -1,88 +1,43 @@
-from rest_framework.views import APIView
+from rest_framework import viewsets, status
+from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework import status
-from .models import MachineLearningProject, BackgroundRemovalProject, PDFTransformationProject
-from .serializers import MachineLearningProjectSerializer, BackgroundRemovalProjectSerializer, PDFTransformationProjectSerializer
-from django.core.files.storage import default_storage
+from .models import ProcessedImage
+from .serializers import ProcessedImageSerializer
+from .utils import process_image_with_opencv
 from django.core.files.base import ContentFile
-import uuid
+import base64
+from django.http import HttpResponse
 
-class MachineLearningProjectList(APIView):
-    """
-    Vista para listar todos los proyectos de Machine Learning.
-    """
-    def get(self, request):
-        projects = MachineLearningProject.objects.all()
-        serializer = MachineLearningProjectSerializer(projects, many=True)
-        return Response(serializer.data)
+class ImageProcessorViewSet(viewsets.ModelViewSet):
+    queryset = ProcessedImage.objects.all()
+    serializer_class = ProcessedImageSerializer
 
-    def post(self, request):
-        serializer = MachineLearningProjectSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-class BackgroundRemovalProjectList(APIView):
-    """
-    Vista para listar y crear proyectos de eliminación de fondo.
-    """
-    def get(self, request):
-        projects = BackgroundRemovalProject.objects.all()
-        serializer = BackgroundRemovalProjectSerializer(projects, many=True)
-        return Response(serializer.data)
-
-    def post(self, request):
-        serializer = BackgroundRemovalProjectSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-class BackgroundRemovalProcess(APIView):
-    """
-    Vista para procesar la eliminación de fondo en un proyecto.
-    """
-    def post(self, request, project_id):
+    @action(detail=False, methods=['post'])
+    def process_image(self, request):
         try:
-            project = BackgroundRemovalProject.objects.get(id=project_id)
-        except BackgroundRemovalProject.DoesNotExist:
-            return Response({"error": "Proyecto no encontrado"}, status=status.HTTP_404_NOT_FOUND)
+            # Obtener la imagen del request
+            image_data = request.data.get('image')
+            if not image_data:
+                return Response(
+                    {'error': 'No image data provided'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
 
-        # Aquí iría la lógica para procesar la imagen
-        project.process_background_removal()  # Se procesa la imagen
+            # Procesar imagen con OpenCV
+            processed_data = process_image_with_opencv(image_data)
+            
+            # Decodificar la imagen procesada
+            format, imgstr = processed_data.split(';base64,')
+            ext = format.split('/')[-1]
+            processed_image_data = base64.b64decode(imgstr)
 
-        serializer = BackgroundRemovalProjectSerializer(project)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+            # Devolver la imagen procesada en la respuesta
+            response = HttpResponse(processed_image_data, content_type=f'image/{ext}')
+            response['Content-Disposition'] = f'attachment; filename="processed.{ext}"'
+            return response
 
-class PDFTransformationProjectList(APIView):
-    """
-    Vista para listar y crear proyectos de transformación de PDF.
-    """
-    def get(self, request):
-        projects = PDFTransformationProject.objects.all()
-        serializer = PDFTransformationProjectSerializer(projects, many=True)
-        return Response(serializer.data)
-
-    def post(self, request):
-        serializer = PDFTransformationProjectSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-class PDFTransformationProcess(APIView):
-    """
-    Vista para transformar un PDF según el tipo de transformación.
-    """
-    def post(self, request, project_id):
-        try:
-            project = PDFTransformationProject.objects.get(id=project_id)
-        except PDFTransformationProject.DoesNotExist:
-            return Response({"error": "Proyecto no encontrado"}, status=status.HTTP_404_NOT_FOUND)
-
-        # Aquí iría la lógica para transformar el PDF
-        project.transform_pdf()  # Se procesa el PDF
-
-        serializer = PDFTransformationProjectSerializer(project)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response(
+                {'error': str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )

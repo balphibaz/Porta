@@ -1,78 +1,93 @@
 import React, { useState } from 'react';
-import { apiService } from '../services/apiService';
-import { ImageProcessingProject } from '../types';
+import { Upload, Loader } from 'lucide-react';
+import ImageProcessingService from '../services/apiService';
 
-const BackgroundRemoval: React.FC = () => {
-  const [image, setImage] = useState<File | null>(null);
-  const [processedProject, setProcessedProject] = useState<ImageProcessingProject | null>(null);
+const ImageProcessor = () => {
+  const [selectedImage, setSelectedImage] = useState<string | ArrayBuffer | null>(null);
+  const [processedImage, setProcessedImage] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      setImage(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const result = reader.result;
+        if (typeof result === 'string') {
+          setSelectedImage(result); // Solo asignamos si es un string
+        }
+        uploadImage(file);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
-  const processImage = async () => {
-    if (!image) {
-      setError('Por favor, selecciona una imagen');
-      return;
-    }
-
-    setLoading(true);
+  const uploadImage = async (file: File) => {
+    setIsLoading(true);
     setError(null);
-
-    try {
-      const project = await apiService.removeBackground(image);
-      setProcessedProject(project);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error desconocido');
-    } finally {
-      setLoading(false);
-    }
+    const reader = new FileReader();
+    reader.onloadend = async () => {
+      const base64String = reader.result?.toString().split(',')[1];
+      if (base64String) {
+        try {
+          const blob = await ImageProcessingService.processImage(`data:${file.type};base64,${base64String}`);
+          const processedImageUrl = URL.createObjectURL(blob);
+          setProcessedImage(processedImageUrl);
+        } catch (error) {
+          setError('Error processing image');
+        } finally {
+          setIsLoading(false);
+        }
+      }
+    };
+    reader.readAsDataURL(file);
   };
 
   return (
-    <div className="p-6 bg-white rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-4">Eliminación de Fondo</h2>
-      
-      <input 
-        type="file" 
-        accept="image/*" 
-        onChange={handleImageUpload}
-        className="mb-4 block w-full text-sm text-gray-500
-          file:mr-4 file:py-2 file:px-4
-          file:rounded-full file:border-0
-          file:text-sm file:font-semibold
-          file:bg-blue-50 file:text-blue-700
-          hover:file:bg-blue-100"
-      />
-
-      <button 
-        onClick={processImage}
-        disabled={!image || loading}
-        className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
-      >
-        {loading ? 'Procesando...' : 'Remover Fondo'}
-      </button>
-
-      {error && (
-        <div className="mt-4 p-2 bg-red-100 text-red-700 rounded">
-          {error}
+    <div className="max-w-4xl mx-auto p-6 space-y-6">
+      <div className="flex flex-col items-center space-y-4">
+        <h1 className="text-2xl font-bold">Procesador de Imágenes OpenCV</h1>
+        
+        {/* Upload Section */}
+        <div className="w-full max-w-md">
+          <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
+            <div className="flex flex-col items-center justify-center pt-5 pb-6">
+              <Upload className="w-8 h-8 mb-2 text-gray-500" />
+              <p className="mb-2 text-sm text-gray-500">
+                <span className="font-semibold">Click para subir</span> o arrastra y suelta
+              </p>
+            </div>
+            <input
+              type="file"
+              className="hidden"
+              accept="image/*"
+              onChange={handleImageUpload}
+            />
+          </label>
         </div>
-      )}
 
-      {processedProject && (
-        <div className="mt-4">
-          <h3 className="text-xl font-semibold">Proyecto Procesado</h3>
-          <p>ID: {processedProject.id}</p>
-          <p>Nombre: {processedProject.name}</p>
-        </div>
-      )}
+        {/* Display Selected Image */}
+        {selectedImage && (
+          <div className="w-full max-w-md">
+            <h2 className="text-lg font-semibold">Imagen Original</h2>
+            <img src={selectedImage.toString()} alt="Selected" className="w-full h-auto" />
+          </div>
+        )}
+
+        {/* Display Processed Image */}
+        {isLoading && <Loader className="w-8 h-8 text-gray-500 animate-spin" />}
+        {processedImage && (
+          <div className="w-full max-w-md">
+            <h2 className="text-lg font-semibold">Imagen Procesada</h2>
+            <img src={processedImage} alt="Processed" className="w-full h-auto" />
+          </div>
+        )}
+
+        {/* Display Error */}
+        {error && <p className="text-red-500">{error}</p>}
+      </div>
     </div>
   );
 };
-
-export default BackgroundRemoval;
+export default ImageProcessor;
