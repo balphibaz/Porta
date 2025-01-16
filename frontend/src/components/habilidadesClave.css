@@ -1,0 +1,21 @@
+.fade-in-section {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 1s ease-out;
+    visibility: hidden;
+  }
+  
+  .fade-in-section.visible {
+    opacity: 1;
+    transform: translateY(0);
+    visibility: visible;
+  }
+  
+  /* Animaciones adicionales para elementos dentro de las secciones */
+  .hover\:scale-105:hover {
+    transform: scale(1.05);
+  }
+  
+  .transition-transform {
+    transition: transform 0.3s ease-in-out;
+  }
