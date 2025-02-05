@@ -15,10 +15,10 @@ class ImageProcessingService {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const blob = await response.blob();
+      const blob = await response.json();
       return blob;
     } catch (error) {
-      console.error('Error processing image:', error);
+      console.error('Error processing image2:', error);
       throw error;
     }
   }
@@ -79,7 +79,7 @@ class ImagentoTextService {
       const text = await response.text();
       return text;
     } catch (error) {
-      console.error('Error processing image:', error);
+      console.error('Error processing image:1', error);
       throw error;
     }
   }

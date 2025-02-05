@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Upload, Loader } from 'lucide-react';
 import {ImageProcessingService} from '../services/apiService';
-
 const ImageProcessor = () => {
   const [selectedImage, setSelectedImage] = useState<string | ArrayBuffer | null>(null);
   const [processedImage, setProcessedImage] = useState<string | null>(null);
@@ -14,24 +13,25 @@ const ImageProcessor = () => {
       const reader = new FileReader();
       reader.onloadend = () => {
         const result = reader.result;
-        if (typeof result === 'string') {
-          setSelectedImage(result); // Solo asignamos si es un string
-        }
+       
+        setSelectedImage(result); // Solo asignamos si es un string
+        
         uploadImage(file);
       };
       reader.readAsDataURL(file);
     }
   };
 
+
   const uploadImage = async (file: File) => {
     setIsLoading(true);
     setError(null);
     const reader = new FileReader();
+    reader.readAsDataURL(file);
     reader.onloadend = async () => {
       const base64String = reader.result?.toString().split(',')[1];
-      if (base64String) {
-        try {
-          const blob = await ImageProcessingService.processImage(`data:${file.type};base64,${base64String}`);
+      try {
+        const blob = await ImageProcessingService.processImage(base64String as string);
           const processedImageUrl = URL.createObjectURL(blob);
           setProcessedImage(processedImageUrl);
         } catch {
@@ -39,7 +39,6 @@ const ImageProcessor = () => {
         } finally {
           setIsLoading(false);
         }
-      }
     };
     reader.readAsDataURL(file);
   };
@@ -70,7 +69,10 @@ const ImageProcessor = () => {
         {selectedImage && (
           <div className="w-full max-w-md">
             <h2 className="text-lg font-semibold">Imagen Original</h2>
+            <div className="relative">
             <img src={selectedImage.toString()} alt="Selected" className="w-full h-auto" />
+            <div className="absolute inset-0 bg-black bg-opacity-25 rounded-lg"></div>
+          </div>
           </div>
         )}
 

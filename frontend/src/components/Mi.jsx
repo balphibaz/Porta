@@ -1,10 +1,9 @@
-import { FadeInSection } from './animaciones/FadeInSection';
 import { Card, CardHeader, CardContent } from '@mui/material'
 import '../../dist/output.css';
 const Sobre = () => {
   return (
         <div className="max-w-7xl mx-auto p-6 space-y-12"> 
-         <FadeInSection className="space-y-4">
+         
             <Card sx={{
                 maxWidth:1200,
                 backgroundColor:'#3E3B5B', 
@@ -36,7 +35,7 @@ const Sobre = () => {
         </div>
         </CardContent>
         </Card>
-        </FadeInSection>
+        
         </div>
   );
 };

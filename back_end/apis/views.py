@@ -3,12 +3,15 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from .models import ProcessedImage, ConversionPDF,ProcessedText
 from .serializers import ProcessedImageSerializer, ConversionPDFSerializer,ProcessedTextSerializer
-from .utils import process_image_with_opencv, convert_pdf,process_text
+from .utils import process_image_with_opencv, convert_pdf,proces_text
 from django.core.files.base import ContentFile
 import base64
 from django.http import HttpResponse
 import os
 from pdf2docx import Converter
+from io import BytesIO
+from PIL import Image
+import io
 
 class PDF_convertViewSet(viewsets.ModelViewSet):
     queryset = ConversionPDF.objects.all()
@@ -48,26 +51,22 @@ class ImageProcessorViewSet(viewsets.ModelViewSet):
                 return Response(
                     {'error': 'No image data provided'},
                     status=status.HTTP_400_BAD_REQUEST
-                )
-
-            # Procesar imagen con OpenCV
-            processed_data = process_image_with_opencv(image_data)
+                ) 
             
-            # Decodificar la imagen procesada
-            format, imgstr = processed_data.split(';base64,')
-            ext = format.split('/')[-1]
-            processed_image_data = base64.b64decode(imgstr)
+            header, encoded = image_data.split(',', 1)
+            image_data = base64.b64decode(encoded)
+            # Procesar imagen con OpenCV
+            processed_data = process_image_with_opencv()
+            
+            
 
             # Devolver la imagen procesada en la respuesta
-            response = HttpResponse(processed_image_data, content_type=f'image/{ext}')
-            response['Content-Disposition'] = f'attachment; filename="processed.{ext}"'
+            response = HttpResponse(processed_data, content_type='text/plain')
             return response
 
         except Exception as e:
             return Response(
-                {'error': str(e)},
-
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                {'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class ProcessorViewSet(viewsets.ModelViewSet):
     queryset = ProcessedText.objects.all()
@@ -83,9 +82,12 @@ class ProcessorViewSet(viewsets.ModelViewSet):
                     {'error': 'No image data provided'},
                     status=status.HTTP_400_BAD_REQUEST
                 )
+            
+            header, encoded = image_data.split(',', 1)
+            image_data = base64.b64decode(encoded)
 
             # Procesar imagen con Ocr
-            processed_data = ProcessedText(image_data)
+            processed_data = proces_text(BytesIO(image_data))
 
             # Devolver la imagen procesada en la respuesta
             response = HttpResponse(processed_data, content_type='text/plai')

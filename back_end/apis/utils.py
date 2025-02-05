@@ -6,12 +6,15 @@ import io
 import pytesseract
 from PIL import Image
 from pdf2docx import Converter
+from io import BytesIO
 def convert_pdf(pdf_path):
+
     docx_path = pdf_path.replace('.pdf', '.docx')
     cv = Converter(pdf_path)
     cv.convert(docx_path, start=0, end=None)
     cv.close()
     return docx_path
+    
 def detect_shapes(image):
     # Convertir a escala de grises
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -53,51 +56,39 @@ def get_shape_name(approx):
         return "Círculo"
 
 def process_image_with_opencv(image_data):
-    # Decodificar la imagen base64
-    format, imgstr = image_data.split(';base64,')
-    ext = format.split('/')[-1]
-    
-    # Convertir base64 a imagen
-    img_data = base64.b64decode(imgstr)
-    img_array = np.frombuffer(img_data, np.uint8)
-    img = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
-    
-    # Aplicar procesamiento OpenCV para quitar el fondo
+
+    img_array =np.frombuffer(image_data, np.uint8)
+    img = cv2.imdecode(img_array,cv2.IMREAD_COLOR)
     # Convertir a escala de grises
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    
-    # Aplicar umbralización para obtener una máscara binaria
-    _, mask = cv2.threshold(gray, 1, 255, cv2.THRESH_BINARY)
-    
-    # Crear un fondo negro
-    background = np.zeros_like(img, np.uint8)
-    
-    # Aplicar el algoritmo GrabCut
-    mask = np.where((mask == 0), 0, 1).astype('uint8')
-    bgdModel = np.zeros((1, 65), np.float64)
-    fgdModel = np.zeros((1, 65), np.float64)
-    rect = (1, 1, img.shape[1]-1, img.shape[0]-1)
-    cv2.grabCut(img, mask, rect, bgdModel, fgdModel, 5, cv2.GC_INIT_WITH_MASK)
-    mask2 = np.where((mask == 2) | (mask == 0), 0, 1).astype('uint8')
-    img = img * mask2[:, :, np.newaxis]
-    
-    # Detectar formas y etiquetarlas
-    img = detect_shapes(img)
-    
+    gray =cv2.cvtColor (img, cv2.COLOR_BGR2GRAY)
+    #Aplicar la umbralizacion para obtener una mascara binaria
+    _, mask=cv2.threshold(gray, 1, 255,cv2.THRESH_BINARY)
+    background= np.zeros_like(img,np.uint8)
+    #aplicar el algoritmo grabcut
+    mask=np.where((mask==0),0,1).astype('uint8')
+    bgdModel = np.zeros((1,65),np.float64)
+    fgdModel = np.zeros((1,65),np.float64)
+    rect=(1,1,img.shape[1]-1,img.shape[0]-1)
+    cv2.grabCut(img,mask,rect,bgdModel,fgdModel,5,cv2.GC_INIT_WITH_MASK)
+    mask2= np.where((mask==2)|(mask==0),0,1).astype('uint8')
+    img=img * mask2[:, :, np.newaxis]
+    img= detect_shapes(img)
     # Convertir la imagen procesada a base64
     _, buffer = cv2.imencode(f'.{ext}', img)
-    img_base64 = base64.b64encode(buffer).decode('utf-8')
-    
-    return f'data:image/{ext};base64,{img_base64}'
+    img_base64= base64.b64encode(buffer).decode('utf-8')
 
-def process_text(image_path):
+
+    return img_base64
+
+def proces_text(image_data):
     try:
-        # Abre la imagen usando Pillow
-        image = Image.open(image_path)
+
+     # Abre la imagen usando Pillow
+        image = Image.open(image_data)
         
         # Usa pytesseract para detectar texto en la imagen
         text = pytesseract.image_to_string(image)
         
         return text
     except Exception as e:
-        return f"Error procesando la imagen: {e}"
+        return str(e)

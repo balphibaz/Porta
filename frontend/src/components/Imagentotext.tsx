@@ -13,32 +13,28 @@ const ImagentoText = () => {
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        const result = reader.result;
-        if (typeof result === 'string') {
-          setSelectedImage(result); // Solo asignamos si es un string
-        }
-        uploadImage(file);
+        const result = reader.result as string;
+        setSelectedImage(result);
+        uploadImage(result);
       };
       reader.readAsDataURL(file);
     }
   };
 
-  const uploadImage = async (file: File) => {
+  const uploadImage = async (base64String:string) => {
     setIsLoading(true);
     setError(null);
-    const reader = new FileReader();
-    reader.onloadend = async () => {
-      const base64String = reader.result?.toString().split(',')[1];
         try {
-          const text = await ImagentoTextService.TexttoImage(`data:${file.type};base64,${base64String}`);
-          setextractedText(text);
+
+          const extractedText = await ImagentoTextService.TexttoImage (base64String);
+          setextractedText(extractedText);
         } catch {
-          setError('Error processing image');
+          setError('Error processing image2');
         } finally {
           setIsLoading(false);
         }
-    };
-    reader.readAsDataURL(file);
+      
+    ;
   };
 
   return (
@@ -71,11 +67,8 @@ const ImagentoText = () => {
           </div>
         )}
         
-        {/* Display Loader */}
-        {isLoading && <Loader className="w-8 h-8 text-gray-500 animate-spin" />}
-
-
         {/* Display Processed Image */}
+        {isLoading && <Loader className="w-8 h-8 text-gray-500 animate-spin" />}
         {extractedText && (
           <div className="w-full max-w-md">
             <h2 className="text-lg font-semibold">Texto Procesado</h2>
