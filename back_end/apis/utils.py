@@ -74,11 +74,10 @@ def process_image_with_opencv(image_data):
     img=img * mask2[:, :, np.newaxis]
     img= detect_shapes(img)
     # Convertir la imagen procesada a base64
-    _, buffer = cv2.imencode(f'.{ext}', img)
-    img_base64= base64.b64encode(buffer).decode('utf-8')
-
-
+    _, buffer = cv2.imencode('.png', gray)
+    img_base64 = base64.b64encode(buffer).decode('utf-8')
     return img_base64
+
 
 def proces_text(image_data):
     try:

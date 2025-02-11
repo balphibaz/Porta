@@ -43,19 +43,19 @@
     padding: 10px 20px;
     cursor: pointer;
     border: none;
-    background-color: #f0f0f0;
+    background-color: #e0e0e0;
     border-radius: 5px;
     transition: background-color 0.3s;
   }
   
   .tab.active {
-    background-color: #007bff;
+    background-color: #005b4f;
     color: white;
   }
   
   .tab-content {
     padding: 20px;
-    border: 1px solid #f0f0f0;
+    border: 1px solid f0f0f0;
     border-radius: 5px;
-    background-color: #fff;
+    background-color: #0000;
   }

@@ -6,12 +6,12 @@ import '../../dist/output.css';
 import { Card, CardContent } from '@mui/material';
 
 const Tabs = () => {
-  const [activeTab, setActiveTab] = useState('imageProcessor');
+  const [activeTab, setActiveTab] = useState('imagentoText');
   const renderContent = () => {
     switch (activeTab) {
+        default:
       case 'ImagentoText':
         return <ImagentoText />;
-        default:
       case 'imageProcessor':
         return <ImageProcessor />;
       
@@ -20,13 +20,13 @@ const Tabs = () => {
   };
 
   return (
-      <div className="max-w-7xl mx-auto p-6 space-y-12">
+      <div className="w-full max-w-2xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
         
           <Card sx={{
                 maxWidth:1200,
-                backgroundColor:'#3E3B5B', 
+                backgroundColor:'#00796b', 
                 '&:hover':{
-                    backgroundColor: '#4B4453',
+                    backgroundColor: '#48a999',
                 },
                 transition: 'background-color 0.3s ease',
                 }} >

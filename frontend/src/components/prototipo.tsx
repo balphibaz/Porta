@@ -4,7 +4,8 @@ import { ChevronDown } from "lucide-react";
 import '../assets/styles/Tabs.css';
 import ProjectCard from"./tabspro";
 import Tablas from"./Tabsimage";
-
+import Zaima from "./tablaapis";
+import { Card } from '@mui/material';
 
 interface Project {
   id: string
@@ -34,15 +35,31 @@ const Tabs: React.FC = () => {
       type: "image",
       component: Tablas,
     },
+    {
+      id:"Apis",
+      title:"Apis",
+      description:"Consumo de APIs",
+      type:"text",
+      component: Zaima,
+    }
+
   ]
 
     
   return (
     <div className="max-w-7xl mx-auto p-6 space-y-12">
       
-      
+      <Card sx={{
+                maxWidth:1200,
+                backgroundColor:'#00796b', 
+                '&:hover':{
+                    backgroundColor: '#48a999',
+                },
+                transition: 'background-color 0.3s ease',
+                }} >
       <div
-        className="relative bg-dark-secondary rounded-lg p-6 transition-all duration-300 ease-in-out cursor-pointer hover:shadow-xl"
+      
+        className="relative rounded-lg p-6 transition-all duration-300 ease-in-out cursor-pointer hover:shadow-xl"
         onMouseEnter={() => setIsExpanded(true)}
         onMouseLeave={() => setIsExpanded(false)}
       >
@@ -67,7 +84,7 @@ const Tabs: React.FC = () => {
         {projects.map((project) => (
           <div
             key={project.id}
-            className="bg-blue-700 rounded-lg p-4 hover:bg-blue-600 transition-colors duration-200 cursor-pointer"
+            className="bg-[#e0e0e0] rounded-lg p-4 hover:bg-[#005b4f] transition-colors duration-200 cursor-pointer"
             onClick={() => setSelectedProject(project)}
           >
             <h3 className="text-lg font-semibold text-white mb-2">{project.title}</h3>
@@ -87,7 +104,7 @@ const Tabs: React.FC = () => {
         </AnimatePresence>
       </div>
           
-    
+      </Card>
     </div>
   
   );

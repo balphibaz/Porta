@@ -11,7 +11,7 @@ import ProjectsSection from './components/prototipo';
 import '../dist/output.css';
 function App() {
   return (
-    <div class="bg-dark-bg text-dark-text min-h-screen p-8">
+    <div class="bg-[#004d40] text-dark-text min-h-screen p-8">
       <Navbar/>
       <Portafolio/>
       <InteractiveGrid/>

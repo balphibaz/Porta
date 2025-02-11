@@ -1,16 +1,16 @@
 
 import { useState } from "react"
-import Transpdf from './Transpdf';
+import Climas from './Clima';
 import { Card, CardContent } from '@mui/material';
 
 
 
-const Tablas = () => {
-  const [activeTab, setActiveTab] = useState('Transpdf');
+const Zaima = () => {
+  const [activeTab, setActiveTab] = useState('Clima');
   const renderContent = () => {
     switch (activeTab) {
-      case 'Transpdf':
-        return <Transpdf/>;
+      case 'Clima':
+        return <Climas/>;
         default:
       
         return null;
@@ -33,10 +33,10 @@ const Tablas = () => {
               <div className="tabs-container">
                 <div className="tabs flex flex-wrap justify-center gap-4">
                   <button
-                    className={`tab ${activeTab === 'Transpdf' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('Transpdf')}
+                    className={`tab ${activeTab === 'Clima' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('Clima')}
                   >
-                    PDF a Word
+                    clima
                   </button>
                 </div>
                 <div className="tab-content">
@@ -50,4 +50,4 @@ const Tablas = () => {
   );
 };
 
-export default Tablas;
+export default Zaima;

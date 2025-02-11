@@ -40,7 +40,10 @@ const ImagentoText = () => {
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-6">
       <div className="flex flex-col items-center space-y-4">
-        <h1 className="text-2xl font-bold">Imágenes a texto con OCR</h1>
+        <h1 className="text-2xl font-bold">Imágenes con OCR</h1>
+        <p className="text-center text-black">
+          Procesador de imágenes que utiliza OCR admitiendo que el usuario ingrese la imagen enviandola al backend para realizar la manipulacion con la libreria.
+        </p>
         {/* Upload Section */}
         <div className="w-full max-w-md">
           <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">

@@ -15,8 +15,8 @@ class ImageProcessingService {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const blob = await response.json();
-      return blob;
+      const proceso = await response.json();
+      return proceso.image;
     } catch (error) {
       console.error('Error processing image2:', error);
       throw error;

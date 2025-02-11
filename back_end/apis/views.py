@@ -38,6 +38,8 @@ class PDF_convertViewSet(viewsets.ModelViewSet):
                 {'error': str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+
+
 class ImageProcessorViewSet(viewsets.ModelViewSet):
     queryset = ProcessedImage.objects.all()
     serializer_class = ProcessedImageSerializer
@@ -56,17 +58,15 @@ class ImageProcessorViewSet(viewsets.ModelViewSet):
             header, encoded = image_data.split(',', 1)
             image_data = base64.b64decode(encoded)
             # Procesar imagen con OpenCV
-            processed_data = process_image_with_opencv()
+            processed_data = process_image_with_opencv(image_data)
             
-            
+            img_base64 = process_image_with_opencv(image_data)
 
             # Devolver la imagen procesada en la respuesta
-            response = HttpResponse(processed_data, content_type='text/plain')
-            return response
-
+            return Response({'image': img_base64}, status=status.HTTP_200_OK)
         except Exception as e:
-            return Response(
-                {'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 class ProcessorViewSet(viewsets.ModelViewSet):
     queryset = ProcessedText.objects.all()
