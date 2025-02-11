@@ -98,7 +98,7 @@ const InteractiveGrid = () => {
   ];
 
   return (
-    <div className="max-w-7xl mx-auto p-6 space-y-12">
+    <div className="max-w-7xl  mx-auto p-6 space-y-12 "id="sobre-mi">
     
           <Card sx={{
                 maxWidth:1200,

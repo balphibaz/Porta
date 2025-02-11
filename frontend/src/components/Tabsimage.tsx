@@ -22,9 +22,9 @@ const Tablas = () => {
         
           <Card sx={{
                 maxWidth:1200,
-                backgroundColor:'#3E3B5B', 
+                backgroundColor:'#00796b', 
                 '&:hover':{
-                    backgroundColor: '#4B4453',
+                    backgroundColor: '#48a999',
                 },
                 transition: 'background-color 0.3s ease',
                 }} >
